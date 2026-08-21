@@ -9,8 +9,8 @@ you include into an application. It provides three cooperating pieces:
 
 | Component | Source | Purpose |
 |-----------|--------|---------|
-| Transmitter | `dmx_z_tx.c` | RS485 master — keeps a 512-slot universe and transmits it continuously with hardware BREAK generation |
-| Receiver | `dmx_z_rx.c` | RS485 slave — polls the UART RX FIFO, detects BREAK for frame sync and maintains a 512-slot universe snapshot |
+| Transmitter | `dmx_z_tx.c` | RS485 transmitter — keeps a 512-slot universe and transmits it continuously with hardware BREAK generation |
+| Receiver | `dmx_z_rx.c` | RS485 receiver — polls the UART RX FIFO, detects BREAK for frame sync and maintains a 512-slot universe snapshot |
 | Fixture | `fixture.c` | Generic N-channel DMX device with a configurable start address that dispatches a per-channel callback |
 
 ## Features
@@ -156,9 +156,9 @@ All options live under `DMX_Z` in Kconfig.
 
 | Option | Default | Range | Description |
 |--------|---------|-------|-------------|
-| `DMX_Z` | y | — | Master switch for the dmx-z driver |
-| `DMX_TX` | y | — | Enable the transmitter (RS485 master) |
-| `DMX_RX` | y | — | Enable the receiver (RS485 slave) |
+| `DMX_Z` | y | — | Top-level switch for the dmx-z driver |
+| `DMX_TX` | y | — | Enable the transmitter (RS485 transmitter) |
+| `DMX_RX` | y | — | Enable the receiver (RS485 receiver) |
 | `DMX_UART_NUM` | 1 | 0–2 | ESP32 hardware UART number; must match the `dmx-uart` alias |
 | `DMX_BAUD` | 250000 | — | DMX512 baud rate (do not change) |
 | `DMX_BREAK_BITS` | 30 | 22–100 | BREAK duration in UART bit-times (≥ 22 for 88 µs at 250k) |
@@ -182,7 +182,7 @@ does not pull in the other half.
 
 ## Projects using dmx-z
 
-- [`club-ctrl`](https://github.com/wkvg-org) — DMX TX master + MQTT (transmitter).
+- [`club-ctrl`](https://github.com/wkvg-org) — DMX TX transmitter + MQTT (transmitter).
 - [`dmx-fixture`](https://github.com/wkvg-org/dmx-fixture) — 8-relay actuator
   (receiver).
 

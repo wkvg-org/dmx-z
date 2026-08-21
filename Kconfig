@@ -13,14 +13,14 @@ config DMX_TX
 	bool "DMX512 transmitter"
 	default y
 	help
-	  Enable the DMX512 transmitter (RS485 master).  Requires the
+	  Enable the DMX512 transmitter (RS485 transmitter).  Requires the
 	  dmx-uart alias in the board devicetree.
 
 config DMX_RX
 	bool "DMX512 receiver"
 	default y
 	help
-	  Enable the DMX512 receiver (RS485 slave).  Polls the UART RX
+	  Enable the DMX512 receiver (RS485 receiver).  Polls the UART RX
 	  FIFO and detects BREAK for frame synchronisation.
 
 config DMX_UART_NUM
