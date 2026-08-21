@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# dmx-z — shared DMX512 driver Kconfig options
+
+menuconfig DMX_Z
+	bool "dmx-z DMX512 driver"
+	help
+	  Shared DMX512 transmitter / receiver driver with fixture abstraction.
+
+if DMX_Z
+
+config DMX_TX
+	bool "DMX512 transmitter"
+	default y
+	help
+	  Enable the DMX512 transmitter (RS485 master).  Requires the
+	  dmx-uart alias in the board devicetree.
+
+config DMX_RX
+	bool "DMX512 receiver"
+	default y
+	help
+	  Enable the DMX512 receiver (RS485 slave).  Polls the UART RX
+	  FIFO and detects BREAK for frame synchronisation.
+
+config DMX_UART_NUM
+	int "ESP32 UART peripheral number for DMX"
+	default 1
+	range 0 2
+	help
+	  ESP32 hardware UART number (0, 1, or 2) used for the DMX
+	  RS485 transceiver.  Must match the dmx-uart alias.
+
+config DMX_BAUD
+	int "DMX512 baud rate"
+	default 250000
+	help
+	  DMX512 standard baud rate.  Do not change unless the
+	  connected fixtures use a non-standard rate.
+
+config DMX_BREAK_BITS
+	int "DMX512 BREAK duration in UART bit-times"
+	default 30
+	range 22 100
+	help
+	  BREAK duration (≥ 88 µs → ≥ 22 bits at 250k baud).
+	  Longer values improve reliability with older receivers.
+
+config DMX_MAB_US
+	int "Mark-After-Break duration in microseconds"
+	default 20
+	range 8 1000
+	help
+	  MAB duration.  8 µs minimum per DMX512 spec.
+
+config DMX_PERIOD_MS
+	int "DMX512 frame refresh period in milliseconds"
+	default 25
+	range 10 1000
+	help
+	  Interval between consecutive DMX frames.  25 ms = 40 Hz.
+
+config DMX_TXD_INVERT
+	bool "Invert TXD signal for RS485 transceiver"
+	default y
+	help
+	  Invert the UART TXD signal.  Required for MAX485-style
+	  auto-DE transceivers where TX idle-high enables RX mode.
+
+config DMX_TX_THREAD_PRIO
+	int "DMX transmitter thread priority (cooperative)"
+	default 7
+	range -1 15
+	help
+	  Cooperative thread priority for the DMX TX loop.
+	  Lower value = higher priority.
+
+config DMX_TX_THREAD_STACK_SIZE
+	int "DMX transmitter thread stack size in bytes"
+	default 1536
+	help
+	  Stack size for the DMX TX thread.  The thread snapshots
+	  the 512-byte universe on the stack, then transmits.
+
+config DMX_FIXTURE_START_ADDR
+	int "DMX fixture start address"
+	default 1
+	range 1 504
+	help
+	  First DMX channel assigned to the fixture.  The fixture
+	  occupies consecutive channels from this address.
+
+endif # DMX_Z
