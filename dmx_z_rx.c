@@ -56,6 +56,11 @@ static void dmx_rx_thread_fn(void *a, void *b, void *c)
 	 */
 
 	while (true) {
+		if (!dmx_is_rx_active()) {
+			k_msleep(10);
+			continue;
+		}
+
 		/* 1. Drain the RX FIFO — slot 512 always precedes the break
 		 *    bytes, so the frame completes before the break is seen. */
 		uint32_t avail = uart_ll_get_rxfifo_len(hw);

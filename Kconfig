@@ -90,4 +90,13 @@ config DMX_FIXTURE_START_ADDR
 	  First DMX channel assigned to the fixture.  The fixture
 	  occupies consecutive channels from this address.
 
+config DMX_RUNTIME_MODE
+	bool "Runtime TX/RX mode switching"
+	depends on DMX_TX && DMX_RX
+	help
+	  Allow switching between the DMX transmitter and receiver at
+	  runtime via dmx_set_mode().  Both threads stay alive and are
+	  gated on the selected mode.  Requires a board that drives the
+	  RS485 direction (DE/RE) signal externally.
+
 endif # DMX_Z

@@ -13,6 +13,7 @@ if(CONFIG_DMX_RX)
 endif()
 
 target_sources(app PRIVATE fixture.c)
+target_sources(app PRIVATE dmx_z_mode.c)
 
 target_compile_definitions(app PRIVATE
 	CONFIG_DMX_UART_NUM=${CONFIG_DMX_UART_NUM}

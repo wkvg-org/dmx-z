@@ -30,6 +30,8 @@ int dmx_tx_init(void);
 void dmx_tx_set_slot(uint16_t ch, uint8_t value);
 void dmx_tx_set_slots(uint16_t start, const uint8_t *buf, size_t n);
 void dmx_tx_blackout(void);
+void dmx_tx_get_slots(uint8_t *buf, size_t n);
+void dmx_tx_load_slots(const uint8_t *buf, size_t n);
 
 /* ── Receiver API ───────────────────────────────────────────────────── */
 
@@ -53,5 +55,30 @@ struct dmx_fixture_cfg {
 };
 
 void dmx_fixture_process(const struct dmx_fixture_cfg *cfg);
+
+/* ── Runtime TX/RX mode switching ───────────────────────────────────── */
+/*
+ * When CONFIG_DMX_RUNTIME_MODE is enabled, the transmitter and receiver
+ * threads are kept alive and gated on the selected mode, so the DMX
+ * direction can be flipped at runtime (e.g. from a web UI) without
+ * reinitialising the UART.
+ */
+
+enum dmx_mode {
+	DMX_MODE_TX,
+	DMX_MODE_RX,
+};
+
+/** Select the active DMX direction (TX or RX). */
+int dmx_set_mode(enum dmx_mode mode);
+
+/** Return the currently selected DMX direction. */
+enum dmx_mode dmx_get_mode(void);
+
+/** True while the transmitter is the active direction. */
+bool dmx_is_tx_active(void);
+
+/** True while the receiver is the active direction. */
+bool dmx_is_rx_active(void);
 
 #endif /* DMX_Z_H_ */

@@ -25,7 +25,7 @@ BUILD_ASSERT(DT_NODE_HAS_STATUS_OKAY(DMX_UART_NODE),
 
 static const struct device *const dmx_uart = DEVICE_DT_GET(DMX_UART_NODE);
 static uint8_t universe[DMX_UNIVERSE_SIZE];
-static struct k_mutex universe_lock;
+K_MUTEX_DEFINE(universe_lock);
 
 static void dmx_tx_frame(void)
 {
@@ -53,8 +53,12 @@ static void dmx_tx_thread_fn(void *a, void *b, void *c)
 {
 	ARG_UNUSED(a); ARG_UNUSED(b); ARG_UNUSED(c);
 	while (true) {
-		dmx_tx_frame();
-		k_msleep(CONFIG_DMX_PERIOD_MS);
+		if (dmx_is_tx_active()) {
+			dmx_tx_frame();
+			k_msleep(CONFIG_DMX_PERIOD_MS);
+		} else {
+			k_msleep(10);
+		}
 	}
 }
 
@@ -90,8 +94,6 @@ int dmx_tx_init(void)
 		uart_dev_t *hw = UART_LL_GET_HW(CONFIG_DMX_UART_NUM);
 		uart_ll_inverse_signal(hw, UART_SIGNAL_TXD_INV);
 	}
-
-	k_mutex_init(&universe_lock);
 
 	k_thread_create(&dmx_tx_thread_data, dmx_tx_stack,
 			K_THREAD_STACK_SIZEOF(dmx_tx_stack),
@@ -139,5 +141,34 @@ void dmx_tx_blackout(void)
 {
 	k_mutex_lock(&universe_lock, K_FOREVER);
 	memset(universe, 0, sizeof(universe));
+	k_mutex_unlock(&universe_lock);
+}
+
+void dmx_tx_get_slots(uint8_t *buf, size_t n)
+{
+	if (!buf) {
+		return;
+	}
+	if (n > sizeof(universe)) {
+		n = sizeof(universe);
+	}
+	k_mutex_lock(&universe_lock, K_FOREVER);
+	memcpy(buf, universe, n);
+	k_mutex_unlock(&universe_lock);
+}
+
+void dmx_tx_load_slots(const uint8_t *buf, size_t n)
+{
+	if (!buf) {
+		return;
+	}
+	if (n > sizeof(universe)) {
+		n = sizeof(universe);
+	}
+	k_mutex_lock(&universe_lock, K_FOREVER);
+	memcpy(universe, buf, n);
+	if (n < sizeof(universe)) {
+		memset(universe + n, 0, sizeof(universe) - n);
+	}
 	k_mutex_unlock(&universe_lock);
 }
